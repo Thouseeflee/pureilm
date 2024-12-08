@@ -2,7 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const connectDB = require("./myconfig/database");
+// const connectDB = require("./myconfig/database");
 const logger = require("./utils/logger");
 
 const app = express();
@@ -15,6 +15,11 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
+// Import routes
+const quranRoutes = require('./routes/quran');
+
+// Use routes
+app.use('/api/quran', quranRoutes);
 
 // Basic routes
 app.get("/api/health", (req, res) => {
