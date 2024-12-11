@@ -48,4 +48,39 @@ router.get('/list', async (req, res) => {
     }
 });
 
+router.get('/page/:pageNumber', async (req, res) => {
+    try {
+        const pageNumber = req.params.pageNumber;
+        const edition = req.query.edition || 'quran-simple'; // Allow different editions as query param
+
+        const response = await axios.get(`https://api.globalquran.com/page/${pageNumber}/${edition}`, {
+            params: {
+                'API Key': process.env.GLOBAL_QURAN_API_KEY
+            }
+        });
+
+        console.log(response.data, "response.data");
+
+        // Check if we have valid data
+        if (!response.data.quran || !response.data.quran[edition]) {
+            return res.status(404).json({ error: 'Page not found' });
+        }
+
+        // Transform the data to a more usable format
+        const verses = Object.entries(response.data.quran[edition]).map(([id, verse]) => ({
+            id,
+            ...verse
+        }));
+
+        res.json({
+            page: parseInt(pageNumber),
+            edition,
+            verses
+        });
+    } catch (error) {
+        console.error('Error fetching Quran page:', error);
+        res.status(500).json({ error: 'Failed to fetch Quran page' });
+    }
+});
+
 module.exports = router; 
